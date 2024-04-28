@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
+        token: ${{ secrets.PAT }}
         ref: main
         fetch-depth: 0  # Fetch all history
 
@@ -27,9 +28,12 @@ jobs:
 
     - name: Merge upstream changes
       run: |
-        git checkout main
-        git merge upstream/main
+        git merge -X ours upstream/main
+        git checkout --ours -- README.md src/playbook.conf
+        git add README.md src/playbook.conf
+        git merge --strategy-option=theirs upstream/main
 
     - name: Push changes
       run: |
         git push origin refs/heads/main
+ 

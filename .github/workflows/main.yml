@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '30 0 * * *'
 
 env:
   SXSC_REPO: 'https://github.com/Atlas-OS/sxsc'
@@ -91,7 +89,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -am "Update playbook, versions, readme"
+          git commit -am "Updated supported versions and readme"
 
       - name: Push changes
         if: success()

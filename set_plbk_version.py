@@ -9,6 +9,9 @@ def change_supported_builds(new_versions, playbook_file):
     old_content = data[start:end]
     old_content += '</SupportedBuilds>'
 
+    # Remove duplicate version numbers
+    new_versions = list(dict.fromkeys(new_versions))
+
     new_content = '<SupportedBuilds>\n'
     for version in new_versions:
         new_content += '        <string>{}</string>\n'.format(version)
