@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '30 0 * * *'
 
 env:
   SXSC_REPO: 'https://github.com/Atlas-OS/sxsc'
@@ -48,16 +46,8 @@ jobs:
           }
         working-directory: sxsc-src
 
-      - name: Archive content
-        run: 7z a -pmalte -mhe=on ${{ env.FILENAME }} ./src/*
-
-      - name: Generate SHA256
-        run: |
-          $hash = (Get-FileHash -Algorithm SHA256 -Path ${{ env.FILENAME }}).Hash
-          echo ("HASH=" + $hash) >> $env:GITHUB_ENV
-
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
   
@@ -85,17 +75,25 @@ jobs:
           sed -i "s|Dev%20Channel-[0-9]*-green|Dev%20Channel-${{ env.DEV }}-green|g" README.md
           sed -i "s|Beta%20Channel-[0-9]*-orange|Beta%20Channel-${{ env.BETA }}-orange|g" README.md
 
+      - name: Archive content
+        run: 7z a -pmalte -mhe=on ${{ env.FILENAME }} ./src/*
+
+      - name: Generate SHA256
+        run: |
+          $hash = (Get-FileHash -Algorithm SHA256 -Path ${{ env.FILENAME }}).Hash
+          echo ("HASH=" + $hash) >> $env:GITHUB_ENV
+
       - name: Commit changes
         if: success()
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
-          git commit -am "Update playbook, versions, readme"
+          git add -A README.md src/playbook.conf
+          git commit -am "Updated supported versions and readme" || true
 
       - name: Push changes
         if: success()
-        run: git push -f
+        run: git push -f || true
 
       - name: Release
         if: success()
